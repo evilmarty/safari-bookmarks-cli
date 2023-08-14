@@ -1,6 +1,6 @@
 from contextlib import contextmanager
 import plistlib
-from typing import Generator, IO
+from typing import Generator, IO, Optional
 import uuid
 from .helpers import load, dump
 from .models import WebBookmarkType, WebBookmarkTypeList, WebBookmarkTypeLeaf, WebBookmarkTypeProxy
@@ -30,7 +30,7 @@ class CLI():
             with open(self.path, "wb") as file:
                 dump(bookmarks, file, plistlib.FMT_BINARY)
 
-    def lookup(self, title: str, root: WebBookmarkType) -> WebBookmarkType | None:
+    def lookup(self, title: str, root: WebBookmarkType) -> Optional[WebBookmarkType]:
         if title.lower() == str(root.web_bookmark_uuid).lower():
             return root
         elif isinstance(root, WebBookmarkTypeLeaf):
@@ -44,7 +44,7 @@ class CLI():
                     return result
         return None
 
-    def parent(self, target: WebBookmarkType, root: WebBookmarkType) -> WebBookmarkTypeList | None:
+    def parent(self, target: WebBookmarkType, root: WebBookmarkType) -> Optional[WebBookmarkTypeList]:
         if target == root:
             return root
         elif isinstance(root, WebBookmarkTypeList):

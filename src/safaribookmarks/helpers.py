@@ -1,10 +1,10 @@
 import plistlib
 from plistlib import PlistFormat
-from typing import IO
+from typing import IO, Optional
 from .models import WebBookmarkTypeList
 
 
-def load(fp: IO, fmt: PlistFormat | None = None) -> WebBookmarkTypeList:
+def load(fp: IO, fmt: Optional[PlistFormat] = None) -> WebBookmarkTypeList:
     if hasattr(fp, "mode"):
         assert 'b' in fp.mode
     data = plistlib.load(fp, fmt=fmt)
