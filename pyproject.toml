@@ -1,0 +1,47 @@
+[project]
+name = "safari-bookmarks-cli"
+authors = [
+  { name="Marty", email="marty@zalega.me" },
+]
+description = "A cli to manage bookmarks in the Safari web browser."
+readme = "README.md"
+requires-python = ">=3.9"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: Apache Software License",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+  "pydantic~=2.1",
+]
+dynamic = ["version"]
+
+[project.urls]
+"Homepage" = "https://github.com/evilmarty/safari-bookmarks-cli"
+"Bug Tracker" = "https://github.com/evilmarty/safari-bookmarks-cli/issues"
+
+[project.scripts]
+safari-bookmarks = "safaribookmarks.main:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build]
+sources = ["src"]
+include = [
+  "src",
+]
+exclude = [
+  ".gitignore",
+  ".github",
+]
+
+[tool.hatch.version]
+path = "src/safaribookmarks/version.py"
+
+[tool.pytest.ini_options]
+addopts = [
+    "--import-mode=importlib",
+]
+pythonpath = "src"
