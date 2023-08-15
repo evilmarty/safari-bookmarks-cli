@@ -38,7 +38,10 @@ exclude = [
 ]
 
 [tool.hatch.version]
+source = "code"
+expression = "VERSION"
 path = "src/safaribookmarks/version.py"
+search-paths = ["src"]
 
 [tool.pytest.ini_options]
 addopts = [
