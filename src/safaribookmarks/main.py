@@ -44,6 +44,11 @@ def parse_args() -> Namespace:
         aliases=["ls", "show"],
         description="List bookmarks and folders.",
     )
+    parser_list.add_argument(
+        "target",
+        nargs="?",
+        help="The UUID or title of the bookmark or folder to show. Default shows all.",
+    )
     parser_list.set_defaults(command="list")
     parser_add = subparsers.add_parser(
         "add",

@@ -110,8 +110,12 @@ class CLI():
                 self.render_item(root, format=format)
 
     def list(self, args):
-        with self.with_bookmarks("rb") as bookmarks:
-            self.render(bookmarks, args, True)
+        with self.with_bookmarks("rb") as target:
+            if args.target:
+                target = self.lookup(args.target, target)
+            if target is None:
+                raise ValueError("Target not found")
+            self.render(target, args, True)
 
     def add(self, args):
         uuid_ = str(args.uuid or uuid.uuid4()).upper()

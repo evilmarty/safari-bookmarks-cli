@@ -26,9 +26,10 @@ class TestCLI:
     @pytest.mark.parametrize(
         ("args", "fixture_path"),
         [
-            (Namespace(json=False, format=None), FIXTURE_PATH.joinpath("list.txt")),
-            (Namespace(json=True, format=None), FIXTURE_PATH.joinpath("list.json")),
-            (Namespace(json=False, format="{id} {title} {url}"), FIXTURE_PATH.joinpath("list-format.txt")),
+            (Namespace(json=False, format=None, target=None), FIXTURE_PATH.joinpath("list.txt")),
+            (Namespace(json=True, format=None, target=None), FIXTURE_PATH.joinpath("list.json")),
+            (Namespace(json=False, format="{id} {title} {url}", target=None), FIXTURE_PATH.joinpath("list-format.txt")),
+            (Namespace(json=False, format=None, target="BookmarksBar"), FIXTURE_PATH.joinpath("list-target.txt")),
         ]
     )
     def test_list(self, cli: CLI, args: Namespace, fixture_path: Path):
