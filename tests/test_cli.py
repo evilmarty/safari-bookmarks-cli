@@ -26,21 +26,25 @@ class TestCLI:
     @pytest.mark.parametrize(
         ("args", "fixture_path"),
         [
-            (
+            pytest.param(
                 Namespace(json=False, format=None, target=None),
                 FIXTURE_PATH.joinpath("list.txt"),
+                id="list-text",
             ),
-            (
+            pytest.param(
                 Namespace(json=True, format=None, target=None),
                 FIXTURE_PATH.joinpath("list.json"),
+                id="list-json",
             ),
-            (
+            pytest.param(
                 Namespace(json=False, format="{id} {title} {url}", target=None),
                 FIXTURE_PATH.joinpath("list-format.txt"),
+                id="list-custom-format",
             ),
-            (
+            pytest.param(
                 Namespace(json=False, format=None, target="BookmarksBar"),
                 FIXTURE_PATH.joinpath("list-target.txt"),
+                id="list-target",
             ),
         ],
     )
@@ -53,7 +57,7 @@ class TestCLI:
     @pytest.mark.parametrize(
         ("args", "fixture_path"),
         [
-            (
+            pytest.param(
                 Namespace(
                     json=False,
                     format=None,
@@ -63,8 +67,9 @@ class TestCLI:
                     url="http://example.com",
                 ),
                 FIXTURE_PATH.joinpath("add-fixed-uuid-no-title-leaf.txt"),
+                id="leaf-url",
             ),
-            (
+            pytest.param(
                 Namespace(
                     json=False,
                     format=None,
@@ -74,8 +79,9 @@ class TestCLI:
                     url="http://example.com",
                 ),
                 FIXTURE_PATH.joinpath("add-no-title-leaf.txt"),
+                id="leaf-uuid-url",
             ),
-            (
+            pytest.param(
                 Namespace(
                     json=False,
                     format=None,
@@ -85,8 +91,9 @@ class TestCLI:
                     url="http://example.com",
                 ),
                 FIXTURE_PATH.joinpath("add-fixed-uuid-leaf.txt"),
+                id="leaf-title-url",
             ),
-            (
+            pytest.param(
                 Namespace(
                     json=False,
                     format=None,
@@ -96,8 +103,9 @@ class TestCLI:
                     url="http://example.com",
                 ),
                 FIXTURE_PATH.joinpath("add-leaf.txt"),
+                id="leaf-uuid-title-url",
             ),
-            (
+            pytest.param(
                 Namespace(
                     json=False,
                     format=None,
@@ -107,8 +115,9 @@ class TestCLI:
                     url=None,
                 ),
                 FIXTURE_PATH.joinpath("add-list.txt"),
+                id="list-uuid-title",
             ),
-            (
+            pytest.param(
                 Namespace(
                     json=False,
                     format=None,
@@ -118,6 +127,7 @@ class TestCLI:
                     url=None,
                 ),
                 FIXTURE_PATH.joinpath("add-fixed-uuid-list.txt"),
+                id="list-title",
             ),
         ],
     )
@@ -140,7 +150,7 @@ class TestCLI:
     @pytest.mark.parametrize(
         ("args", "error"),
         [
-            (
+            pytest.param(
                 Namespace(
                     json=False,
                     format=None,
@@ -151,8 +161,9 @@ class TestCLI:
                     to=None,
                 ),
                 "Title is required",
+                id="missing-title",
             ),
-            (
+            pytest.param(
                 Namespace(
                     json=False,
                     format=None,
@@ -163,8 +174,9 @@ class TestCLI:
                     to=None,
                 ),
                 "URL is not supported by lists",
+                id="with-url",
             ),
-            (
+            pytest.param(
                 Namespace(
                     json=False,
                     format=None,
@@ -175,8 +187,9 @@ class TestCLI:
                     to="AB38D373-1266-495A-8CAC-422A771CF70A",
                 ),
                 "Invalid destination",
+                id="leaf-target",
             ),
-            (
+            pytest.param(
                 Namespace(
                     json=False,
                     format=None,
@@ -187,8 +200,9 @@ class TestCLI:
                     to="F1DF1813-B60B-461A-B497-51AF24AD2925",
                 ),
                 "Invalid destination",
+                id="nonexistent-uuid",
             ),
-            (
+            pytest.param(
                 Namespace(
                     json=False,
                     format=None,
@@ -199,6 +213,7 @@ class TestCLI:
                     to="Unknown",
                 ),
                 "Invalid destination",
+                id="nonexistent-title",
             ),
         ],
     )
@@ -265,21 +280,23 @@ class TestCLI:
     @pytest.mark.parametrize(
         ("args", "error"),
         [
-            (
+            pytest.param(
                 Namespace(
                     json=False,
                     format=None,
                     targets=["BF7BB6D9-AF1D-4B5C-A95A-7765E9C5B199"],
                 ),
                 "Target not found",
+                id="uuid",
             ),
-            (
+            pytest.param(
                 Namespace(
                     json=False,
                     format=None,
                     targets=["Unknown"],
                 ),
                 "Target not found",
+                id="title",
             ),
         ],
     )
@@ -290,7 +307,7 @@ class TestCLI:
     @pytest.mark.parametrize(
         ("args", "fixture_path"),
         [
-            (
+            pytest.param(
                 Namespace(
                     json=False,
                     format=None,
@@ -298,12 +315,14 @@ class TestCLI:
                     to="20ABDC16-B491-47F4-B252-2A3065CFB895",
                 ),
                 FIXTURE_PATH.joinpath("move-leaf.txt"),
+                id="leaf-by-uuid",
             ),
-            (
+            pytest.param(
                 Namespace(json=False, format=None, target="Safari", to="BookmarksMenu"),
                 FIXTURE_PATH.joinpath("move-leaf.txt"),
+                id="leaf-by-title",
             ),
-            (
+            pytest.param(
                 Namespace(
                     json=False,
                     format=None,
@@ -311,8 +330,9 @@ class TestCLI:
                     to="20ABDC16-B491-47F4-B252-2A3065CFB895",
                 ),
                 FIXTURE_PATH.joinpath("move-list.txt"),
+                id="list-by-uuid",
             ),
-            (
+            pytest.param(
                 Namespace(
                     json=False,
                     format=None,
@@ -320,6 +340,7 @@ class TestCLI:
                     to="BookmarksMenu",
                 ),
                 FIXTURE_PATH.joinpath("move-list.txt"),
+                id="list-by-title",
             ),
         ],
     )
@@ -332,7 +353,7 @@ class TestCLI:
     @pytest.mark.parametrize(
         ("args", "error"),
         [
-            (
+            pytest.param(
                 Namespace(
                     json=False,
                     format=None,
@@ -340,8 +361,9 @@ class TestCLI:
                     to="BookmarksMenu",
                 ),
                 "Target not found",
+                id="nonexistent-target-by-uuid",
             ),
-            (
+            pytest.param(
                 Namespace(
                     json=False,
                     format=None,
@@ -349,8 +371,9 @@ class TestCLI:
                     to="BookmarksMenu",
                 ),
                 "Target not found",
+                id="nonexistent-target-by-title",
             ),
-            (
+            pytest.param(
                 Namespace(
                     json=False,
                     format=None,
@@ -358,8 +381,9 @@ class TestCLI:
                     to="41BA6DB5-4D97-4921-ADC6-4418D1824DF4",
                 ),
                 "Invalid destination",
+                id="nonexistent-destination-by-uuid",
             ),
-            (
+            pytest.param(
                 Namespace(
                     json=False,
                     format=None,
@@ -367,6 +391,7 @@ class TestCLI:
                     to="Unknown",
                 ),
                 "Invalid destination",
+                id="nonexistent-destination-by-title",
             ),
         ],
     )
@@ -377,7 +402,7 @@ class TestCLI:
     @pytest.mark.parametrize(
         ("args", "fixture_path"),
         [
-            (
+            pytest.param(
                 Namespace(
                     json=False,
                     format=None,
@@ -386,8 +411,9 @@ class TestCLI:
                     url=None,
                 ),
                 FIXTURE_PATH.joinpath("edit-title-leaf.txt"),
+                id="leaf-title",
             ),
-            (
+            pytest.param(
                 Namespace(
                     json=False,
                     format=None,
@@ -396,8 +422,9 @@ class TestCLI:
                     url="http://example.com",
                 ),
                 FIXTURE_PATH.joinpath("edit-url-leaf.txt"),
+                id="leaf-url",
             ),
-            (
+            pytest.param(
                 Namespace(
                     json=False,
                     format=None,
@@ -406,8 +433,9 @@ class TestCLI:
                     url="http://example.com",
                 ),
                 FIXTURE_PATH.joinpath("edit-title-url-leaf.txt"),
+                id="leaf-title-and-url",
             ),
-            (
+            pytest.param(
                 Namespace(
                     json=False,
                     format=None,
@@ -416,6 +444,7 @@ class TestCLI:
                     url=None,
                 ),
                 FIXTURE_PATH.joinpath("edit-title-list.txt"),
+                id="list-title",
             ),
         ],
     )
@@ -428,7 +457,7 @@ class TestCLI:
     @pytest.mark.parametrize(
         ("args", "error"),
         [
-            (
+            pytest.param(
                 Namespace(
                     json=False,
                     format=None,
@@ -437,8 +466,9 @@ class TestCLI:
                     url="http://example.com",
                 ),
                 "Target not found",
+                id="nonexistent-uuid",
             ),
-            (
+            pytest.param(
                 Namespace(
                     json=False,
                     format=None,
@@ -447,8 +477,9 @@ class TestCLI:
                     url="http://example.com",
                 ),
                 "Target not found",
+                id="nonexistent-title",
             ),
-            (
+            pytest.param(
                 Namespace(
                     json=False,
                     format=None,
@@ -457,6 +488,7 @@ class TestCLI:
                     url="http://example.com",
                 ),
                 "Cannot update target url",
+                id="list-url",
             ),
         ],
     )
