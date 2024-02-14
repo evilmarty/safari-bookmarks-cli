@@ -3,12 +3,17 @@ import plistlib
 from typing import Generator, IO, Optional
 import uuid
 from .helpers import load, dump
-from .models import WebBookmarkType, WebBookmarkTypeList, WebBookmarkTypeLeaf, WebBookmarkTypeProxy
+from .models import (
+    WebBookmarkType,
+    WebBookmarkTypeList,
+    WebBookmarkTypeLeaf,
+    WebBookmarkTypeProxy,
+)
 
 DEFAULT_LIST_FORMAT = "{prefix: <{depth}}{title: <50}{type: <6}{id: <38}{url}"
 
 
-class CLI():
+class CLI:
     def __init__(self, path: str, out: IO) -> None:
         self.path = path
         self.output = out
@@ -22,7 +27,9 @@ class CLI():
             raise ValueError(f"Invalid command: {command}")
 
     @contextmanager
-    def with_bookmarks(self, update: bool = False) -> Generator[WebBookmarkTypeList, None, None]:
+    def with_bookmarks(
+        self, update: bool = False
+    ) -> Generator[WebBookmarkTypeList, None, None]:
         with open(self.path, "rb") as file:
             bookmarks = load(file, plistlib.FMT_BINARY)
         yield bookmarks
@@ -44,7 +51,9 @@ class CLI():
                     return result
         return None
 
-    def parent(self, target: WebBookmarkType, root: WebBookmarkType) -> Optional[WebBookmarkTypeList]:
+    def parent(
+        self, target: WebBookmarkType, root: WebBookmarkType
+    ) -> Optional[WebBookmarkTypeList]:
         if target == root:
             return root
         elif isinstance(root, WebBookmarkTypeList):
@@ -63,11 +72,7 @@ class CLI():
                 item.url_string,
             )
         elif isinstance(item, WebBookmarkTypeProxy):
-            return (
-                "proxy",
-                item.title,
-                ""
-            )
+            return ("proxy", item.title, "")
         elif isinstance(item, WebBookmarkTypeList):
             return (
                 "list",
@@ -92,7 +97,7 @@ class CLI():
             )
         )
         if isinstance(item, WebBookmarkTypeList):
-            self.render_children(item, format=format, depth=depth+1)
+            self.render_children(item, format=format, depth=depth + 1)
             self.output.write("\n")
 
     def render_children(self, item: WebBookmarkType, format: str, depth: int = 0):
@@ -144,13 +149,14 @@ class CLI():
             self.render(web_bookmark, args)
 
     def remove(self, args):
-        with self.with_bookmarks(True) as parent:
-            target = self.lookup(args.target, parent)
-            if target is None:
-                raise ValueError("Target not found")
-            parent = self.parent(target, parent)
-            parent.remove(target)
-            self.render(target, args)
+        with self.with_bookmarks(True) as root:
+            for target in args.targets:
+                target = self.lookup(target, root)
+                if target is None:
+                    raise ValueError("Target not found")
+                parent = self.parent(target, root)
+                parent.remove(target)
+            self.render(root, args)
 
     def move(self, args):
         with self.with_bookmarks(True) as bookmarks:

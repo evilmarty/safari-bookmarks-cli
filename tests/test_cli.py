@@ -26,11 +26,23 @@ class TestCLI:
     @pytest.mark.parametrize(
         ("args", "fixture_path"),
         [
-            (Namespace(json=False, format=None, target=None), FIXTURE_PATH.joinpath("list.txt")),
-            (Namespace(json=True, format=None, target=None), FIXTURE_PATH.joinpath("list.json")),
-            (Namespace(json=False, format="{id} {title} {url}", target=None), FIXTURE_PATH.joinpath("list-format.txt")),
-            (Namespace(json=False, format=None, target="BookmarksBar"), FIXTURE_PATH.joinpath("list-target.txt")),
-        ]
+            (
+                Namespace(json=False, format=None, target=None),
+                FIXTURE_PATH.joinpath("list.txt"),
+            ),
+            (
+                Namespace(json=True, format=None, target=None),
+                FIXTURE_PATH.joinpath("list.json"),
+            ),
+            (
+                Namespace(json=False, format="{id} {title} {url}", target=None),
+                FIXTURE_PATH.joinpath("list-format.txt"),
+            ),
+            (
+                Namespace(json=False, format=None, target="BookmarksBar"),
+                FIXTURE_PATH.joinpath("list-target.txt"),
+            ),
+        ],
     )
     def test_list(self, cli: CLI, args: Namespace, fixture_path: Path):
         with fixture_path.open("r") as file:
@@ -50,7 +62,7 @@ class TestCLI:
                     title=None,
                     url="http://example.com",
                 ),
-                FIXTURE_PATH.joinpath("add-fixed-uuid-no-title-leaf.txt")
+                FIXTURE_PATH.joinpath("add-fixed-uuid-no-title-leaf.txt"),
             ),
             (
                 Namespace(
@@ -61,7 +73,7 @@ class TestCLI:
                     title=None,
                     url="http://example.com",
                 ),
-                FIXTURE_PATH.joinpath("add-no-title-leaf.txt")
+                FIXTURE_PATH.joinpath("add-no-title-leaf.txt"),
             ),
             (
                 Namespace(
@@ -72,7 +84,7 @@ class TestCLI:
                     title="Example",
                     url="http://example.com",
                 ),
-                FIXTURE_PATH.joinpath("add-fixed-uuid-leaf.txt")
+                FIXTURE_PATH.joinpath("add-fixed-uuid-leaf.txt"),
             ),
             (
                 Namespace(
@@ -83,7 +95,7 @@ class TestCLI:
                     title="Example",
                     url="http://example.com",
                 ),
-                FIXTURE_PATH.joinpath("add-leaf.txt")
+                FIXTURE_PATH.joinpath("add-leaf.txt"),
             ),
             (
                 Namespace(
@@ -94,7 +106,7 @@ class TestCLI:
                     title="Example",
                     url=None,
                 ),
-                FIXTURE_PATH.joinpath("add-list.txt")
+                FIXTURE_PATH.joinpath("add-list.txt"),
             ),
             (
                 Namespace(
@@ -105,19 +117,16 @@ class TestCLI:
                     title="Example",
                     url=None,
                 ),
-                FIXTURE_PATH.joinpath("add-fixed-uuid-list.txt")
+                FIXTURE_PATH.joinpath("add-fixed-uuid-list.txt"),
             ),
-        ]
+        ],
     )
     @pytest.mark.parametrize(
-        "to",
-        [
-            None,
-            "3B5180DB-831D-4F1A-AE4A-6482D28D66D5",
-            "BookmarksMenu"
-        ]
+        "to", [None, "3B5180DB-831D-4F1A-AE4A-6482D28D66D5", "BookmarksMenu"]
     )
-    def test_add__valid(self, cli: CLI, args: Namespace, fixture_path: Path, to: str, monkeypatch):
+    def test_add__valid(
+        self, cli: CLI, args: Namespace, fixture_path: Path, to: str, monkeypatch
+    ):
         with (
             fixture_path.open("r") as file,
             monkeypatch.context() as m,
@@ -191,7 +200,7 @@ class TestCLI:
                 ),
                 "Invalid destination",
             ),
-        ]
+        ],
     )
     def test_add__invalid(self, cli: CLI, args: Namespace, error: str):
         with pytest.raises(ValueError, match=error):
@@ -200,39 +209,52 @@ class TestCLI:
     @pytest.mark.parametrize(
         ("args", "fixture_path"),
         [
-            (
+            pytest.param(
                 Namespace(
                     json=False,
                     format=None,
-                    target="B441CA58-1880-4151-929E-743090B66587",
+                    targets=["B441CA58-1880-4151-929E-743090B66587"],
                 ),
                 FIXTURE_PATH.joinpath("remove-leaf.txt"),
+                id="remove-leaf-by-uuid",
             ),
-            (
+            pytest.param(
                 Namespace(
                     json=False,
                     format=None,
-                    target="Safari Bookmarks CLI",
+                    targets=["Safari Bookmarks CLI"],
                 ),
                 FIXTURE_PATH.joinpath("remove-leaf.txt"),
+                id="remove-leaf-by-title",
             ),
-            (
+            pytest.param(
                 Namespace(
                     json=False,
                     format=None,
-                    target="3B5180DB-831D-4F1A-AE4A-6482D28D66D5",
+                    targets=["3B5180DB-831D-4F1A-AE4A-6482D28D66D5"],
                 ),
                 FIXTURE_PATH.joinpath("remove-list.txt"),
+                id="remove-list-by-uuid",
             ),
-            (
+            pytest.param(
                 Namespace(
                     json=False,
                     format=None,
-                    target="BookmarksBar",
+                    targets=["BookmarksBar"],
                 ),
                 FIXTURE_PATH.joinpath("remove-list.txt"),
+                id="remove-list-by-title",
             ),
-        ]
+            pytest.param(
+                Namespace(
+                    json=False,
+                    format=None,
+                    targets=["Python", "Safari"],
+                ),
+                FIXTURE_PATH.joinpath("remove-multiple.txt"),
+                id="remove-multiple",
+            ),
+        ],
     )
     def test_remove__valid(self, cli: CLI, args: Namespace, fixture_path: Path):
         with fixture_path.open("r") as file:
@@ -247,7 +269,7 @@ class TestCLI:
                 Namespace(
                     json=False,
                     format=None,
-                    target="BF7BB6D9-AF1D-4B5C-A95A-7765E9C5B199",
+                    targets=["BF7BB6D9-AF1D-4B5C-A95A-7765E9C5B199"],
                 ),
                 "Target not found",
             ),
@@ -255,11 +277,11 @@ class TestCLI:
                 Namespace(
                     json=False,
                     format=None,
-                    target="Unknown",
+                    targets=["Unknown"],
                 ),
                 "Target not found",
             ),
-        ]
+        ],
     )
     def test_remove__invalid(self, cli: CLI, args: Namespace, error: str):
         with pytest.raises(ValueError, match=error):
@@ -273,17 +295,12 @@ class TestCLI:
                     json=False,
                     format=None,
                     target="AB38D373-1266-495A-8CAC-422A771CF70A",
-                    to="20ABDC16-B491-47F4-B252-2A3065CFB895"
+                    to="20ABDC16-B491-47F4-B252-2A3065CFB895",
                 ),
                 FIXTURE_PATH.joinpath("move-leaf.txt"),
             ),
             (
-                Namespace(
-                    json=False,
-                    format=None,
-                    target="Safari",
-                    to="BookmarksMenu"
-                ),
+                Namespace(json=False, format=None, target="Safari", to="BookmarksMenu"),
                 FIXTURE_PATH.joinpath("move-leaf.txt"),
             ),
             (
@@ -304,7 +321,7 @@ class TestCLI:
                 ),
                 FIXTURE_PATH.joinpath("move-list.txt"),
             ),
-        ]
+        ],
     )
     def test_move__valid(self, cli: CLI, args: Namespace, fixture_path: Path):
         with fixture_path.open("r") as file:
@@ -351,7 +368,7 @@ class TestCLI:
                 ),
                 "Invalid destination",
             ),
-        ]
+        ],
     )
     def test_move__invalid(self, cli: CLI, args: Namespace, error: str):
         with pytest.raises(ValueError, match=error):
@@ -400,7 +417,7 @@ class TestCLI:
                 ),
                 FIXTURE_PATH.joinpath("edit-title-list.txt"),
             ),
-        ]
+        ],
     )
     def test_edit__valid(self, cli: CLI, args: Namespace, fixture_path: Path):
         with fixture_path.open("r") as file:
@@ -441,7 +458,7 @@ class TestCLI:
                 ),
                 "Cannot update target url",
             ),
-        ]
+        ],
     )
     def test_edit__invalid(self, cli: CLI, args: Namespace, error: str):
         with pytest.raises(ValueError, match=error):

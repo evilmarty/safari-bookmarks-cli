@@ -19,7 +19,8 @@ def parse_args() -> Namespace:
         version="%(prog)s v{version}".format(version=VERSION),
     )
     parser.add_argument(
-        "--file", "-f",
+        "--file",
+        "-f",
         type=expanduser,
         default="~/Library/Safari/Bookmarks.plist",
         help="The path to the Safari bookmarks.",
@@ -31,9 +32,10 @@ def parse_args() -> Namespace:
         help="Render output as JSON",
     )
     parser.add_argument(
-        "--format", "-F",
+        "--format",
+        "-F",
         required=False,
-        help="Customize the output format. Available placeholders: {title}, {url}, {id}, {type}, {prefix}, {suffix}."
+        help="Customize the output format. Available placeholders: {title}, {url}, {id}, {type}, {prefix}, {suffix}.",
     )
     subparsers = parser.add_subparsers(
         title="commands",
@@ -70,10 +72,7 @@ def parse_args() -> Namespace:
         help="The target folder.",
     )
     group = parser_add.add_mutually_exclusive_group(required=True)
-    group.add_argument(
-        "--url",
-        help="The URL for the bookmark."
-    )
+    group.add_argument("--url", help="The URL for the bookmark.")
     group.add_argument(
         "--folder",
         dest="list",
@@ -88,8 +87,9 @@ def parse_args() -> Namespace:
         description="Remove a bookmark or folder.",
     )
     parser_remove.add_argument(
-        "target",
-        help="The UUID or title of the bookmark or folder to remove."
+        "targets",
+        nargs="+",
+        help="The UUID or title of the bookmark or folder to remove.",
     )
     parser_remove.set_defaults(command="remove")
     parser_move = subparsers.add_parser(
@@ -98,8 +98,7 @@ def parse_args() -> Namespace:
         description="Move a bookmark or folder.",
     )
     parser_move.add_argument(
-        "target",
-        help="The UUID or title of the bookmark or folder to move."
+        "target", help="The UUID or title of the bookmark or folder to move."
     )
     parser_move.add_argument(
         "--to",
