@@ -16,6 +16,12 @@ dependencies = [
 ]
 dynamic = ["version"]
 
+[project.optional-dependencies]
+tests = [
+  "pytest~=8.2",
+  "flake8~=7.1",
+]
+
 [project.urls]
 "Homepage" = "https://github.com/evilmarty/safari-bookmarks-cli"
 "Bug Tracker" = "https://github.com/evilmarty/safari-bookmarks-cli/issues"
