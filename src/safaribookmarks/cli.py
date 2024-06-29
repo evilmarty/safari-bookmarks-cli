@@ -126,7 +126,7 @@ class CLI:
                 target = self.lookup(args.target, target)
             if target is None:
                 raise ValueError("Target not found")
-            self.render(target, args, True)
+            self.render(target, args, isinstance(target, WebBookmarkTypeList))
 
     def add(self, args):
         uuid_ = str(args.uuid or uuid.uuid4()).upper()

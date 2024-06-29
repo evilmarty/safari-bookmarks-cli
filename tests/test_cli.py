@@ -47,6 +47,15 @@ class TestCLI:
                 FIXTURE_PATH.joinpath("list-target.txt"),
                 id="list-target",
             ),
+            pytest.param(
+                Namespace(
+                    json=False,
+                    format=None,
+                    target="B441CA58-1880-4151-929E-743090B66587",
+                ),
+                FIXTURE_PATH.joinpath("list-leaf.txt"),
+                id="list-leaf",
+            ),
         ],
     )
     def test_list(self, cli: CLI, args: Namespace, fixture_path: Path):
