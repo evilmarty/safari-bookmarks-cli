@@ -394,6 +394,16 @@ class TestCLI:
                 "Invalid destination",
                 id="nonexistent-destination-by-title",
             ),
+            pytest.param(
+                Namespace(
+                    json=False,
+                    format=None,
+                    target="AB38D373-1266-495A-8CAC-422A771CF70A",
+                    to=None,
+                ),
+                "Missing destination",
+                id="missing-destination",
+            ),
         ],
     )
     def test_move__invalid(self, cli: CLI, args: Namespace, error: str):

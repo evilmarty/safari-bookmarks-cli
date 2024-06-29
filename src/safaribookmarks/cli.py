@@ -170,13 +170,14 @@ class CLI:
             if target is None:
                 raise ValueError("Target not found")
             parent = cast(WebBookmarkTypeList, self.parent(target, bookmarks))
-            if args.to:
-                dest = self.lookup(args.to, bookmarks)
-                if not isinstance(dest, WebBookmarkTypeList):
-                    raise ValueError("Invalid destination")
-                parent.remove(target)
-                dest.append(target)
-                self.render(dest, args)
+            if not args.to:
+                raise ValueError("Missing destination")
+            dest = self.lookup(args.to, bookmarks)
+            if not isinstance(dest, WebBookmarkTypeList):
+                raise ValueError("Invalid destination")
+            parent.remove(target)
+            dest.append(target)
+            self.render(dest, args)
 
     def edit(self, args):
         with self.with_bookmarks(True) as bookmarks:
