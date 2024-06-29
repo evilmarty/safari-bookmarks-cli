@@ -1,10 +1,10 @@
 from contextlib import contextmanager
 import plistlib
-from typing import Generator, IO, Optional
+from typing import cast, Generator, IO, Optional
 import uuid
 from .helpers import load, dump
 from .models import (
-    WebBookmarkType,
+    ChildrenType,
     WebBookmarkTypeList,
     WebBookmarkTypeLeaf,
     WebBookmarkTypeProxy,
@@ -37,34 +37,37 @@ class CLI:
             with open(self.path, "wb") as file:
                 dump(bookmarks, file, plistlib.FMT_BINARY)
 
-    def lookup(self, title: str, root: WebBookmarkType) -> Optional[WebBookmarkType]:
+    def lookup(self, title: str, root: ChildrenType) -> Optional[ChildrenType]:
         if title.lower() == str(root.web_bookmark_uuid).lower():
             return root
         elif isinstance(root, WebBookmarkTypeLeaf):
-            if root.uri_dictionary.get("title") == title:
-                return root
-        elif root.title == title:
+            leaf = cast(WebBookmarkTypeLeaf, root)
+            if leaf.uri_dictionary.get("title") == title:
+                return leaf
+        elif getattr(root, "title", None) == title:
             return root
         elif isinstance(root, WebBookmarkTypeList):
-            for child in root:
+            list_ = cast(WebBookmarkTypeList, root)
+            for child in iter(list_.children):
                 if result := self.lookup(title, child):
                     return result
         return None
 
     def parent(
-        self, target: WebBookmarkType, root: WebBookmarkType
-    ) -> Optional[WebBookmarkTypeList]:
+        self, target: ChildrenType, root: ChildrenType
+    ) -> Optional[ChildrenType]:
         if target == root:
             return root
         elif isinstance(root, WebBookmarkTypeList):
-            if target in root:
+            list_ = cast(WebBookmarkTypeList, root)
+            if target in list_.children:
                 return root
-            for child in root:
+            for child in root.children:
                 if result := self.parent(target, child):
                     return result
         return None
 
-    def get_info(self, item: WebBookmarkType) -> tuple[str, str, str]:
+    def get_info(self, item: ChildrenType) -> tuple[str, str, str]:
         if isinstance(item, WebBookmarkTypeLeaf):
             return (
                 "leaf",
@@ -82,7 +85,7 @@ class CLI:
         else:
             return ("unknown", "", "")
 
-    def render_item(self, item: WebBookmarkType, format: str, depth: int = 0):
+    def render_item(self, item: ChildrenType, format: str, depth: int = 0):
         id = item.web_bookmark_uuid
         type_, title, url = self.get_info(item)
         self.output.write(
@@ -100,11 +103,14 @@ class CLI:
             self.render_children(item, format=format, depth=depth + 1)
             self.output.write("\n")
 
-    def render_children(self, item: WebBookmarkType, format: str, depth: int = 0):
-        for child in item.children:
+    def render_children(self, item: ChildrenType, format: str, depth: int = 0):
+        if not isinstance(item, WebBookmarkTypeList):
+            return
+        list_ = cast(WebBookmarkTypeList, item)
+        for child in list_.children:
             self.render_item(child, format, depth=depth)
 
-    def render(self, root: WebBookmarkType, args, only_children=False):
+    def render(self, root: ChildrenType, args, only_children=False):
         if args.json:
             self.output.write(root.model_dump_json(by_alias=True))
         else:
@@ -115,7 +121,7 @@ class CLI:
                 self.render_item(root, format=format)
 
     def list(self, args):
-        with self.with_bookmarks("rb") as target:
+        with self.with_bookmarks() as target:
             if args.target:
                 target = self.lookup(args.target, target)
             if target is None:
@@ -128,15 +134,15 @@ class CLI:
             if not args.title:
                 raise ValueError("Title is required")
             web_bookmark = WebBookmarkTypeList(
-                web_bookmark_uuid=uuid_,
-                title=args.title,
+                WebBookmarkUUID=uuid_,
+                Title=args.title,
             )
             if args.url:
                 raise ValueError("URL is not supported by lists")
         else:
             web_bookmark = WebBookmarkTypeLeaf(
-                web_bookmark_uuid=uuid_,
-                url_string=args.url,
+                WebBookmarkUUID=uuid_,
+                URLString=args.url,
             )
             if args.title:
                 web_bookmark.uri_dictionary["title"] = args.title
@@ -154,7 +160,7 @@ class CLI:
                 target = self.lookup(target, root)
                 if target is None:
                     raise ValueError("Target not found")
-                parent = self.parent(target, root)
+                parent = cast(WebBookmarkTypeList, self.parent(target, root))
                 parent.remove(target)
             self.render(root, args)
 
@@ -163,14 +169,14 @@ class CLI:
             target = self.lookup(args.target, bookmarks)
             if target is None:
                 raise ValueError("Target not found")
-            parent = self.parent(target, bookmarks)
+            parent = cast(WebBookmarkTypeList, self.parent(target, bookmarks))
             if args.to:
                 dest = self.lookup(args.to, bookmarks)
-            if not isinstance(dest, WebBookmarkTypeList):
-                raise ValueError("Invalid destination")
-            parent.remove(target)
-            dest.append(target)
-            self.render(dest, args)
+                if not isinstance(dest, WebBookmarkTypeList):
+                    raise ValueError("Invalid destination")
+                parent.remove(target)
+                dest.append(target)
+                self.render(dest, args)
 
     def edit(self, args):
         with self.with_bookmarks(True) as bookmarks:

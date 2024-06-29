@@ -1,7 +1,12 @@
 import pytest
 from uuid import uuid4
 
-from safaribookmarks.models import WebBookmarkTypeList, WebBookmarkTypeLeaf, WebBookmarkTypeProxy, WebBookmarkType
+from safaribookmarks.models import (
+    WebBookmarkTypeList,
+    WebBookmarkTypeLeaf,
+    WebBookmarkTypeProxy,
+    WebBookmarkType,
+)
 
 
 class TestWebBookmarkType:
@@ -9,7 +14,6 @@ class TestWebBookmarkType:
         uuid = str(uuid4())
         subject = WebBookmarkType(
             WebBookmarkUUID=uuid,
-            WebBookmarkType="test",
         )
         assert hash(subject) == hash(uuid)
 
@@ -36,9 +40,6 @@ class TestWebBookmarkTypeList:
                 ),
             ],
         )
-
-    def test_iter(self, subject):
-        assert list(iter(subject)) == subject.children
 
     def test_append(self, subject: WebBookmarkTypeList):
         new_child = WebBookmarkTypeLeaf(
