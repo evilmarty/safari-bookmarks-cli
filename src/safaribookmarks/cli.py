@@ -40,10 +40,6 @@ class CLI:
     def lookup(self, title: str, root: ChildrenType) -> Optional[ChildrenType]:
         if title.lower() == str(root.web_bookmark_uuid).lower():
             return root
-        elif isinstance(root, WebBookmarkTypeLeaf):
-            leaf = cast(WebBookmarkTypeLeaf, root)
-            if leaf.uri_dictionary.get("title") == title:
-                return leaf
         elif getattr(root, "title", None) == title:
             return root
         elif isinstance(root, WebBookmarkTypeList):
@@ -185,12 +181,7 @@ class CLI:
             if target is None:
                 raise ValueError("Target not found")
             if title := args.title:
-                if isinstance(target, WebBookmarkTypeList):
-                    target.title = title
-                elif isinstance(target, WebBookmarkTypeLeaf):
-                    target.uri_dictionary["title"] = title
-                else:
-                    raise ValueError("Cannot update target title")
+                target.title = title
             if url := args.url:
                 if isinstance(target, WebBookmarkTypeLeaf):
                     target.url_string = url

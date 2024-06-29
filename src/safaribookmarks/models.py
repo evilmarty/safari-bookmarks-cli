@@ -33,6 +33,14 @@ class WebBookmarkTypeLeaf(WebBookmarkType):
     url_string: str = Field(alias="URLString")
     uri_dictionary: dict[str, str] = Field(alias="URIDictionary", default_factory=dict)
 
+    @property
+    def title(self) -> str:
+        return self.uri_dictionary.get("title", "")
+
+    @title.setter
+    def title(self, value) -> None:
+        self.uri_dictionary["title"] = value
+
 
 class WebBookmarkTypeList(WebBookmarkType):
     web_bookmark_type: Literal["WebBookmarkTypeList"] = Field(

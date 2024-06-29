@@ -1,0 +1,1 @@
+Safari Bookmarks CLI                              leaf  B441CA58-1880-4151-929E-743090B66587  https://github.com/evilmarty/safari-bookmarks-cli
