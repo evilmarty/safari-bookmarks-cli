@@ -19,6 +19,13 @@ jobs:
           pip install .[build]
       - name: Build package
         run: hatch build
+      - name: Update release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: "${{github.event.release.tag_name}}"
+          fail_on_unmatched_files: true
+          files: |
+            dist/**
       - name: Publish package
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
