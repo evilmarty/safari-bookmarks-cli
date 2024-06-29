@@ -21,6 +21,9 @@ tests = [
   "pytest~=8.2",
   "flake8~=7.1",
 ]
+build = [
+  "hatch",
+]
 
 [project.urls]
 "Homepage" = "https://github.com/evilmarty/safari-bookmarks-cli"
@@ -41,6 +44,7 @@ include = [
 exclude = [
   ".gitignore",
   ".github",
+  "tests",
 ]
 
 [tool.hatch.version]
