@@ -7,9 +7,9 @@ description = "A cli to manage bookmarks in the Safari web browser."
 readme = "README.md"
 requires-python = ">=3.9"
 classifiers = [
-    "Programming Language :: Python :: 3",
-    "License :: OSI Approved :: Apache Software License",
-    "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3",
+  "License :: OSI Approved :: Apache Software License",
+  "Operating System :: OS Independent",
 ]
 dependencies = [
   "pydantic~=2.1",
@@ -42,8 +42,9 @@ include = [
   "src",
 ]
 exclude = [
-  ".gitignore",
   ".github",
+  ".gitignore",
+  "pyproject.toml",
   "tests",
 ]
 
@@ -55,6 +56,6 @@ search-paths = ["src"]
 
 [tool.pytest.ini_options]
 addopts = [
-    "--import-mode=importlib",
+  "--import-mode=importlib",
 ]
 pythonpath = "src"
