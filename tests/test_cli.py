@@ -25,6 +25,35 @@ class TestCLI:
         return CLI(bookmarks_path, StringIO())
 
     @pytest.mark.parametrize(
+        ("command", "namespace", "error"),
+        [
+            pytest.param(
+                "nope",
+                Namespace(json=False, format=None, target=None),
+                ValueError("Invalid command"),
+                id="non-existent-command",
+            ),
+            pytest.param(
+                "path",
+                Namespace(json=False, format=None, target=None),
+                ValueError("Invalid command"),
+                id="invalid-command",
+            ),
+            pytest.param(
+                None,
+                Namespace(json=False, format=None, target=None),
+                ValueError("No command specified"),
+                id="no-command",
+            ),
+        ],
+    )
+    def test_run(
+        self, cli: CLI, command: str, namespace: Namespace, error: BaseException
+    ):
+        with pytest.raises(type(error), match=str(error)):
+            cli.run(command, **namespace.__dict__)
+
+    @pytest.mark.parametrize(
         ("args", "fixture_path"),
         [
             pytest.param(

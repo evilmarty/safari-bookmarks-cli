@@ -21,8 +21,9 @@ class CLI:
     def run(self, command: str, **kwargs) -> None:
         if command is None:
             raise ValueError("No command specified")
-        if func := getattr(self, command):
-            func(args)
+        func = getattr(self, command, None)
+        if callable(func):
+            func(**kwargs)
         else:
             raise ValueError(f"Invalid command: {command}")
 
