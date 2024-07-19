@@ -60,7 +60,7 @@ class TestCLI:
     )
     def test_list(self, cli: CLI, args: Namespace, fixture_path: Path):
         with fixture_path.open("r") as file:
-            cli.list(args)
+            cli.list(**args.__dict__)
             cli.output.seek(0)
             assert file.read() == cli.output.read()
 
@@ -153,7 +153,7 @@ class TestCLI:
         ):
             m.setattr("uuid.uuid4", lambda: "8693E85C-83FC-4F42-AFB2-40B9CFACAAA0")
             args.to = to
-            cli.add(args)
+            cli.add(**args.__dict__)
             cli.output.seek(0)
             assert file.read() == cli.output.read()
 
@@ -229,7 +229,7 @@ class TestCLI:
     )
     def test_add__invalid(self, cli: CLI, args: Namespace, error: str):
         with pytest.raises(ValueError, match=error):
-            cli.add(args)
+            cli.add(**args.__dict__)
 
     @pytest.mark.parametrize(
         ("args", "fixture_path"),
@@ -283,7 +283,7 @@ class TestCLI:
     )
     def test_remove__valid(self, cli: CLI, args: Namespace, fixture_path: Path):
         with fixture_path.open("r") as file:
-            cli.remove(args)
+            cli.remove(**args.__dict__)
             cli.output.seek(0)
             assert file.read() == cli.output.read()
 
@@ -312,7 +312,7 @@ class TestCLI:
     )
     def test_remove__invalid(self, cli: CLI, args: Namespace, error: str):
         with pytest.raises(ValueError, match=error):
-            cli.remove(args)
+            cli.remove(**args.__dict__)
 
     @pytest.mark.parametrize(
         ("args", "fixture_path"),
@@ -356,7 +356,7 @@ class TestCLI:
     )
     def test_move__valid(self, cli: CLI, args: Namespace, fixture_path: Path):
         with fixture_path.open("r") as file:
-            cli.move(args)
+            cli.move(**args.__dict__)
             cli.output.seek(0)
             assert file.read() == cli.output.read()
 
@@ -417,7 +417,7 @@ class TestCLI:
     )
     def test_move__invalid(self, cli: CLI, args: Namespace, error: str):
         with pytest.raises(ValueError, match=error):
-            cli.move(args)
+            cli.move(**args.__dict__)
 
     @pytest.mark.parametrize(
         ("args", "fixture_path"),
@@ -470,7 +470,7 @@ class TestCLI:
     )
     def test_edit__valid(self, cli: CLI, args: Namespace, fixture_path: Path):
         with fixture_path.open("r") as file:
-            cli.edit(args)
+            cli.edit(**args.__dict__)
             cli.output.seek(0)
             assert file.read() == cli.output.read()
 
@@ -514,4 +514,4 @@ class TestCLI:
     )
     def test_edit__invalid(self, cli: CLI, args: Namespace, error: str):
         with pytest.raises(ValueError, match=error):
-            cli.edit(args)
+            cli.edit(**args.__dict__)

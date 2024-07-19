@@ -128,4 +128,4 @@ def parse_args() -> Namespace:
 
 def main():
     args = parse_args()
-    CLI(args.file, stdout).run(args.command, args)
+    CLI(args.file, stdout).run(args.command, **args.__dict__)
