@@ -235,3 +235,15 @@ class CLI:
                 else:
                     raise ValueError("Cannot update target url")
             self._render(target, **kwargs)
+
+    def empty(self, path: List[str], **kwargs):
+        with self._with_bookmarks(True) as root:
+            target = self._get_or_walk(path, root)
+            if target is None:
+                raise ValueError("Target not found")
+            if not isinstance(target, WebBookmarkTypeList):
+                raise ValueError("Target is not a list")
+            target.empty()
+            self._render(
+                root, only_children=isinstance(target, WebBookmarkTypeList), **kwargs
+            )

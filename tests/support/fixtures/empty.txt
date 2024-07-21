@@ -1,0 +1,9 @@
+History                                           proxy 7551D1F4-38C1-4DB3-88AC-90C15F10338D  
+BookmarksBar                                      list  3B5180DB-831D-4F1A-AE4A-6482D28D66D5  
+
+BookmarksMenu                                     list  20ABDC16-B491-47F4-B252-2A3065CFB895  
+
+com.apple.ReadingList                             list  E3B5B464-B6D2-457C-9F62-7B2316F7EF20  
+ Linux From Scratch                                leaf  F32FEDBB-7653-48FE-95C3-458B01EF2A4F  https://linuxfromscratch.org/lfs/view/development/
+ Creating Generative SVG Grids                     leaf  74B28EA6-2E11-4F73-848B-5439B9802822  https://frontend.horse/articles/generative-grids/
+

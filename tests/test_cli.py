@@ -459,3 +459,46 @@ class TestCLI:
     ):
         with pytest.raises(ValueError, match=error):
             cli.edit(path=path, title=title, url=url)
+
+    @pytest.mark.parametrize(
+        ("path", "fixture_path"),
+        [
+            pytest.param(
+                ["BookmarksBar"], FIXTURE_PATH.joinpath("empty.txt"), id="list-title"
+            ),
+            pytest.param(
+                ["3B5180DB-831D-4F1A-AE4A-6482D28D66D5"],
+                FIXTURE_PATH.joinpath("empty.txt"),
+                id="list-uuid",
+            ),
+        ],
+    )
+    def test_empty__valid(self, cli: CLI, path: List[str], fixture_path: Path):
+        with fixture_path.open("r") as file:
+            cli.empty(path=path)
+            cli.output.seek(0)
+            assert file.read() == cli.output.read()
+
+    @pytest.mark.parametrize(
+        ("path", "error"),
+        [
+            pytest.param(
+                ["F04ABC44-9C55-437E-A19D-B63ED24FC185"],
+                "Target not found",
+                id="nonexistent-uuid",
+            ),
+            pytest.param(
+                ["Unknown"],
+                "Target not found",
+                id="nonexistent-title",
+            ),
+            pytest.param(
+                ["1E830274-3DB6-42F2-BE8E-14E2BA75418C"],
+                "Target is not a list",
+                id="leaf",
+            ),
+        ],
+    )
+    def test_empty__invalid(self, cli: CLI, path: List[str], error: str):
+        with pytest.raises(ValueError, match=error):
+            cli.empty(path=path)

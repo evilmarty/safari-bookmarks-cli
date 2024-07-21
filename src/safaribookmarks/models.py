@@ -57,3 +57,6 @@ class WebBookmarkTypeList(WebBookmarkType):
 
     def remove(self, item: ChildrenType) -> None:
         self.children.remove(item)
+
+    def empty(self) -> None:
+        self.children.clear()
