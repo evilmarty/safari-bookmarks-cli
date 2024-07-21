@@ -108,25 +108,25 @@ def parse_args() -> Namespace:
         help="The UUID or path to the destination folder.",
     )
     parser_move.set_defaults(command="move")
-    parser_move = subparsers.add_parser(
+    parser_edit = subparsers.add_parser(
         "edit",
         aliases=["e", "update", "change"],
         description="Edit a bookmark or folder.",
     )
-    parser_move.add_argument(
+    parser_edit.add_argument(
         "path",
         nargs="+",
         help="The UUID or path of the bookmark or folder to change.",
     )
-    parser_move.add_argument(
+    parser_edit.add_argument(
         "--title",
         help="The new title to change.",
     )
-    parser_move.add_argument(
+    parser_edit.add_argument(
         "--url",
         help="The new URL to change. Only used for bookmarks.",
     )
-    parser_move.set_defaults(command="move")
+    parser_edit.set_defaults(command="edit")
     return parser.parse_args()
 
 
