@@ -22,35 +22,59 @@ class CLI:
         if command is None:
             raise ValueError("No command specified")
         func = getattr(self, command, None)
-        if callable(func):
-            func(**kwargs)
-        else:
+        if command.startswith("_") or not callable(func):
             raise ValueError(f"Invalid command: {command}")
+        func(**kwargs)
+
+    def _load(self) -> WebBookmarkTypeList:
+        with open(self.path, "rb") as file:
+            return load(file, plistlib.FMT_BINARY)
+
+    def _dump(self, bookmarks: WebBookmarkTypeList) -> None:
+        with open(self.path, "wb") as file:
+            dump(bookmarks, file, plistlib.FMT_BINARY)
 
     @contextmanager
-    def with_bookmarks(
+    def _with_bookmarks(
         self, update: bool = False
     ) -> Generator[WebBookmarkTypeList, None, None]:
-        with open(self.path, "rb") as file:
-            bookmarks = load(file, plistlib.FMT_BINARY)
+        bookmarks = self._load()
         yield bookmarks
         if update:
-            with open(self.path, "wb") as file:
-                dump(bookmarks, file, plistlib.FMT_BINARY)
+            self._dump(bookmarks)
 
-    def lookup(self, title: str, root: ChildrenType) -> Optional[ChildrenType]:
-        if title.lower() == str(root.web_bookmark_uuid).lower():
+    def _walk(self, path: List[str], root: ChildrenType) -> Optional[ChildrenType]:
+        if len(path) == 0:
             return root
-        elif getattr(root, "title", None) == title:
+        title = path[0]
+        if title == root.title:
+            return root
+        if isinstance(root, WebBookmarkTypeList):
+            list_ = cast(WebBookmarkTypeList, root)
+            for node in list_.children:
+                if node.title == title:
+                    return self._walk(path[1:], node)
+        return None
+
+    def _get(self, uuid: str, root: ChildrenType) -> Optional[ChildrenType]:
+        if uuid.lower() == str(root.web_bookmark_uuid).lower():
             return root
         elif isinstance(root, WebBookmarkTypeList):
             list_ = cast(WebBookmarkTypeList, root)
-            for child in iter(list_.children):
-                if result := self.lookup(title, child):
+            for child in list_.children:
+                if result := self._get(uuid, child):
                     return result
         return None
 
-    def parent(
+    def _get_or_walk(
+        self, path: List[str], root: ChildrenType
+    ) -> Optional[ChildrenType]:
+        if len(path) == 1:
+            if result := self._get(path[0], root):
+                return result
+        return self._walk(path, root)
+
+    def _parent(
         self, target: ChildrenType, root: ChildrenType
     ) -> Optional[ChildrenType]:
         if target == root:
@@ -60,15 +84,15 @@ class CLI:
             if target in list_.children:
                 return root
             for child in root.children:
-                if result := self.parent(target, child):
+                if result := self._parent(target, child):
                     return result
         return None
 
-    def get_info(self, item: ChildrenType) -> tuple[str, str, str]:
+    def _get_info(self, item: ChildrenType) -> tuple[str, str, str]:
         if isinstance(item, WebBookmarkTypeLeaf):
             return (
                 "leaf",
-                item.uri_dictionary.get("title", ""),
+                item.title,
                 item.url_string,
             )
         elif isinstance(item, WebBookmarkTypeProxy):
@@ -82,9 +106,9 @@ class CLI:
         else:
             return ("unknown", "", "")
 
-    def render_item(self, item: ChildrenType, format: str, depth: int = 0):
+    def _render_item(self, item: ChildrenType, format: str, depth: int = 0):
         id = item.web_bookmark_uuid
-        type_, title, url = self.get_info(item)
+        type_, title, url = self._get_info(item)
         self.output.write(
             f"{format}\n".format(
                 depth=depth,
@@ -97,17 +121,17 @@ class CLI:
             )
         )
         if isinstance(item, WebBookmarkTypeList):
-            self.render_children(item, format=format, depth=depth + 1)
+            self._render_children(item, format=format, depth=depth + 1)
             self.output.write("\n")
 
-    def render_children(self, item: ChildrenType, format: str, depth: int = 0):
+    def _render_children(self, item: ChildrenType, format: str, depth: int = 0):
         if not isinstance(item, WebBookmarkTypeList):
             return
         list_ = cast(WebBookmarkTypeList, item)
         for child in list_.children:
-            self.render_item(child, format, depth=depth)
+            self._render_item(child, format, depth=depth)
 
-    def render(
+    def _render(
         self,
         root: ChildrenType,
         format: Optional[str] = None,
@@ -120,39 +144,38 @@ class CLI:
             if format is None:
                 format = DEFAULT_LIST_FORMAT
             if only_children:
-                self.render_children(root, format=format)
+                self._render_children(root, format=format)
             else:
-                self.render_item(root, format=format)
+                self._render_item(root, format=format)
 
-    def list(self, target: Optional[str] = None, **kwargs):
-        with self.with_bookmarks() as root:
-            if target:
-                root = self.lookup(target, root)
-            if root is None:
+    def list(self, path: List[str] = [], **kwargs):
+        with self._with_bookmarks() as root:
+            target = self._get_or_walk(path, root)
+            if target is None:
                 raise ValueError("Target not found")
-            self.render(
-                root, only_children=isinstance(root, WebBookmarkTypeList), **kwargs
+            self._render(
+                target, only_children=isinstance(target, WebBookmarkTypeList), **kwargs
             )
 
     def add(
         self,
-        title: Optional[str] = None,
+        title: Optional[str],
         uuid: Optional[str] = None,
         url: Optional[str] = None,
-        to: Optional[str] = None,
+        path: List[str] = [],
         list=False,
         **kwargs,
     ):
         uuid = str(uuid or UUID.uuid4()).upper()
         if list:
+            if url:
+                raise ValueError("URL is not supported by lists")
             if not title:
                 raise ValueError("Title is required")
             web_bookmark = WebBookmarkTypeList(
                 WebBookmarkUUID=uuid,
                 Title=title,
             )
-            if url:
-                raise ValueError("URL is not supported by lists")
         elif url is None:
             raise ValueError("URL is required")
         else:
@@ -162,55 +185,53 @@ class CLI:
             )
             if title:
                 web_bookmark.title = title
-        with self.with_bookmarks(True) as target:
-            if to:
-                target = self.lookup(to, target)
-                if not isinstance(target, WebBookmarkTypeList):
-                    raise ValueError("Invalid destination")
+        with self._with_bookmarks(True) as root:
+            target = self._get_or_walk(path, root)
+            if not isinstance(target, WebBookmarkTypeList):
+                raise ValueError("Invalid destination")
             target.children.append(web_bookmark)
-            self.render(web_bookmark, **kwargs)
+            self._render(web_bookmark, **kwargs)
 
-    def remove(self, targets: List[str], **kwargs):
-        with self.with_bookmarks(True) as root:
-            for target in targets:
-                node = self.lookup(target, root)
-                if node is None:
-                    raise ValueError("Target not found")
-                parent = cast(WebBookmarkTypeList, self.parent(node, root))
-                parent.remove(node)
-            self.render(root, **kwargs)
-
-    def move(self, target: str, to: Optional[str] = None, **kwargs):
-        with self.with_bookmarks(True) as bookmarks:
-            node = self.lookup(target, bookmarks)
-            if node is None:
+    def remove(self, path: List[str], **kwargs):
+        with self._with_bookmarks(True) as root:
+            target = self._get_or_walk(path, root)
+            if target is None:
                 raise ValueError("Target not found")
-            parent = cast(WebBookmarkTypeList, self.parent(node, bookmarks))
+            parent = cast(WebBookmarkTypeList, self._parent(target, root))
+            parent.remove(target)
+            self._render(root, **kwargs)
+
+    def move(self, path: List[str], to: List[str] = [], **kwargs):
+        with self._with_bookmarks(True) as root:
+            target = self._get_or_walk(path, root)
+            if target is None:
+                raise ValueError("Target not found")
+            parent = cast(WebBookmarkTypeList, self._parent(target, root))
             if not to:
                 raise ValueError("Missing destination")
-            dest = self.lookup(to, bookmarks)
+            dest = self._get_or_walk(to, root)
             if not isinstance(dest, WebBookmarkTypeList):
                 raise ValueError("Invalid destination")
-            parent.remove(node)
-            dest.append(node)
-            self.render(dest, **kwargs)
+            parent.remove(target)
+            dest.append(target)
+            self._render(dest, **kwargs)
 
     def edit(
         self,
-        target: str,
+        path: List[str],
         title: Optional[str] = None,
         url: Optional[str] = None,
         **kwargs,
     ):
-        with self.with_bookmarks(True) as bookmarks:
-            node = self.lookup(target, bookmarks)
-            if node is None:
+        with self._with_bookmarks(True) as root:
+            target = self._get_or_walk(path, root)
+            if target is None:
                 raise ValueError("Target not found")
             if title is not None:
-                node.title = title
+                target.title = title
             if url is not None:
-                if isinstance(node, WebBookmarkTypeLeaf):
-                    node.url_string = url
+                if isinstance(target, WebBookmarkTypeLeaf):
+                    target.url_string = url
                 else:
                     raise ValueError("Cannot update target url")
-            self.render(node, **kwargs)
+            self._render(target, **kwargs)
