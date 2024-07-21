@@ -51,12 +51,6 @@ def parse_args() -> Namespace:
         nargs="*",
         help="The UUID or bookmark or folder path to show. Default shows all.",
     )
-    parser_list.add_argument(
-        "--uuid",
-        type=UUID,
-        required=False,
-        help="The UUID to show.",
-    )
     parser_list.set_defaults(command="list")
     parser_add = subparsers.add_parser(
         "add",
@@ -137,5 +131,6 @@ def parse_args() -> Namespace:
 
 
 def main():
-    args = parse_args()
-    CLI(args.file, stdout).run(args.command, **args.__dict__)
+    args = parse_args().__dict__
+    file = args.pop("file")
+    CLI(file, stdout).run(**args)
