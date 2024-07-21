@@ -1,4 +1,5 @@
 # safari-bookmarks-cli
+
 A cli to manage bookmarks in the Safari web browser.
 
 This utility interacts with Safari's `Bookmarks.plist` file. When it detects changes it is reloaded without intervention.
@@ -32,22 +33,28 @@ safari-bookmarks --help
 safari-bookmarks list
 ```
 
+### To list all bookmarks in the menubar
+
+```shell
+safari-bookmarks list "BookmarksMenu"
+```
+
 ### Add a new bookmark to the menubar
 
 ```shell
-safari-bookmarks add --title "New bookmark" --url "http://example.com" --to BookmarksMenu
+safari-bookmarks add --title "New bookmark" --url "http://example.com" "BookmarksMenu"
 ```
 
 ### Add a new bookmark to the menu
 
 ```shell
-safari-bookmarks add --title "New folder" --list --to BookmarksBar
+safari-bookmarks add --title "New folder" --list "BookmarksBar"
 ```
 
 ### Move a bookmark to a different folder
 
 ```shell
-safari-bookmarks move --title "New bookmark" --to "New folder"
+safari-bookmarks move "BookmarksMenu" "New bookmark" --to "BookmarksBar" "New folder"
 ```
 
 ### Remove a bookmark or folder
@@ -55,7 +62,7 @@ safari-bookmarks move --title "New bookmark" --to "New folder"
 **Note** removing a folder will also remove all bookmarks and folders within it.
 
 ```shell
-safari-bookmarks remove "New folder"
+safari-bookmarks remove "BookmarksBar" "New folder"
 ```
 
 ## Testing
