@@ -47,9 +47,15 @@ def parse_args() -> Namespace:
         description="List bookmarks and folders.",
     )
     parser_list.add_argument(
-        "target",
-        nargs="?",
-        help="The UUID or title of the bookmark or folder to show. Default shows all.",
+        "path",
+        nargs="*",
+        help="The UUID or bookmark or folder path to show. Default shows all.",
+    )
+    parser_list.add_argument(
+        "--uuid",
+        type=UUID,
+        required=False,
+        help="The UUID to show.",
     )
     parser_list.set_defaults(command="list")
     parser_add = subparsers.add_parser(
@@ -58,8 +64,9 @@ def parse_args() -> Namespace:
         description="Add a bookmark or folder.",
     )
     parser_add.add_argument(
-        "title",
-        help="The title of the bookmark or folder.",
+        "path",
+        nargs="*",
+        help="The UUID or folder path to add the new bookmark or folder to.",
     )
     parser_add.add_argument(
         "--uuid",
@@ -68,8 +75,9 @@ def parse_args() -> Namespace:
         help="The UUID to use. Default is to generate a new UUID.",
     )
     parser_add.add_argument(
-        "--to",
-        help="The target folder.",
+        "--title",
+        required=True,
+        help="The title of the bookmark or folder.",
     )
     group = parser_add.add_mutually_exclusive_group(required=True)
     group.add_argument("--url", help="The URL for the bookmark.")
@@ -87,9 +95,9 @@ def parse_args() -> Namespace:
         description="Remove a bookmark or folder.",
     )
     parser_remove.add_argument(
-        "targets",
+        "path",
         nargs="+",
-        help="The UUID or title of the bookmark or folder to remove.",
+        help="The UUID or path to the bookmark or folder to remove.",
     )
     parser_remove.set_defaults(command="remove")
     parser_move = subparsers.add_parser(
@@ -98,11 +106,12 @@ def parse_args() -> Namespace:
         description="Move a bookmark or folder.",
     )
     parser_move.add_argument(
-        "target", help="The UUID or title of the bookmark or folder to move."
+        "target", nargs="+", help="The UUID or path of the bookmark or folder to move."
     )
     parser_move.add_argument(
         "--to",
-        help="The destination folder.",
+        nargs="*",
+        help="The UUID or path to the destination folder.",
     )
     parser_move.set_defaults(command="move")
     parser_move = subparsers.add_parser(
@@ -111,8 +120,9 @@ def parse_args() -> Namespace:
         description="Edit a bookmark or folder.",
     )
     parser_move.add_argument(
-        "target",
-        help="The UUID or title of the bookmark or folder to change.",
+        "path",
+        nargs="+",
+        help="The UUID or path of the bookmark or folder to change.",
     )
     parser_move.add_argument(
         "--title",
