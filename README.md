@@ -65,6 +65,12 @@ safari-bookmarks move "BookmarksMenu" "New bookmark" --to "BookmarksBar" "New fo
 safari-bookmarks remove "BookmarksBar" "New folder"
 ```
 
+### Empty a folder
+
+```shell
+safari-bookmarks empty "BookmarksBar" "New folder"
+```
+
 ## Testing
 
 Clone the repository:

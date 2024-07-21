@@ -127,6 +127,17 @@ def parse_args() -> Namespace:
         help="The new URL to change. Only used for bookmarks.",
     )
     parser_edit.set_defaults(command="edit")
+    parser_empty = subparsers.add_parser(
+        "empty",
+        aliases=["clear"],
+        description="Empty the items in a folder.",
+    )
+    parser_empty.add_argument(
+        "path",
+        nargs="+",
+        help="The UUID or path of the bookmark or folder to empty.",
+    )
+    parser_empty.set_defaults(command="empty")
     return parser.parse_args()
 
 

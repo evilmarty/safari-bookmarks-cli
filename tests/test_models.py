@@ -61,3 +61,8 @@ class TestWebBookmarkTypeList:
         child, *_ = subject.children.copy()
         subject.remove(child)
         assert child not in subject.children
+
+    def test_empty(self, subject: WebBookmarkTypeList):
+        assert len(subject.children) != 0
+        subject.empty()
+        assert len(subject.children) == 0
