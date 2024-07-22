@@ -1,3 +1,3 @@
-Safari Bookmarks CLI                              leaf  B441CA58-1880-4151-929E-743090B66587  https://github.com/evilmarty/safari-bookmarks-cli
-Python                                            leaf  1E830274-3DB6-42F2-BE8E-14E2BA75418C  https://www.python.org
-Safari                                            leaf  AB38D373-1266-495A-8CAC-422A771CF70A  http://apple.com/safari
+┌ Safari Bookmarks CLI                               B441CA58-1880-4151-929E-743090B66587  https://github.com/evilmarty/safari-bookmarks-cli
+├ Python                                             1E830274-3DB6-42F2-BE8E-14E2BA75418C  https://www.python.org
+└ Safari                                             AB38D373-1266-495A-8CAC-422A771CF70A  http://apple.com/safari

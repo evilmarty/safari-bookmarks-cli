@@ -31,11 +31,19 @@ def parse_args() -> Namespace:
         default=False,
         help="Render output as JSON",
     )
-    parser.add_argument(
+    group = parser.add_mutually_exclusive_group(required=False)
+    group.add_argument(
         "--format",
         "-F",
         required=False,
         help="Customize the output format. Available placeholders: {title}, {url}, {id}, {type}, {prefix}, {suffix}.",
+    )
+    group.add_argument(
+        "--simple",
+        dest="simple_format",
+        action=BooleanOptionalAction,
+        default=False,
+        help="Set the output to a simple format. Not to be used with --format.",
     )
     subparsers = parser.add_subparsers(
         title="commands",

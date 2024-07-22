@@ -3,10 +3,7 @@
 B441CA58-1880-4151-929E-743090B66587 Safari Bookmarks CLI https://github.com/evilmarty/safari-bookmarks-cli
 1E830274-3DB6-42F2-BE8E-14E2BA75418C Python https://www.python.org
 AB38D373-1266-495A-8CAC-422A771CF70A Safari http://apple.com/safari
-
 20ABDC16-B491-47F4-B252-2A3065CFB895 BookmarksMenu 
-
 E3B5B464-B6D2-457C-9F62-7B2316F7EF20 com.apple.ReadingList 
 F32FEDBB-7653-48FE-95C3-458B01EF2A4F Linux From Scratch https://linuxfromscratch.org/lfs/view/development/
 74B28EA6-2E11-4F73-848B-5439B9802822 Creating Generative SVG Grids https://frontend.horse/articles/generative-grids/
-
