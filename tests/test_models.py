@@ -1,5 +1,4 @@
 import pytest
-from uuid import uuid4
 
 from safaribookmarks.models import (
     WebBookmarkTypeList,
@@ -11,18 +10,14 @@ from safaribookmarks.models import (
 
 class TestWebBookmarkType:
     def test_hash(self):
-        uuid = str(uuid4())
-        subject = WebBookmarkType(
-            WebBookmarkUUID=uuid,
-        )
-        assert hash(subject) == hash(uuid)
+        subject = WebBookmarkType()
+        assert hash(subject) == hash(subject.web_bookmark_uuid)
 
 
 class TestWebBookmarkTypeProxy:
     @pytest.fixture()
     def subject(self):
         return WebBookmarkTypeProxy(
-            WebBookmarkUUID=str(uuid4()),
             Title="Example",
         )
 
@@ -31,11 +26,9 @@ class TestWebBookmarkTypeList:
     @pytest.fixture()
     def subject(self):
         return WebBookmarkTypeList(
-            WebBookmarkUUID=str(uuid4()),
             Title="Example",
             Children=[
                 WebBookmarkTypeLeaf(
-                    WebBookmarkUUID=str(uuid4()),
                     URLString="http://example.com",
                 ),
             ],
@@ -43,7 +36,6 @@ class TestWebBookmarkTypeList:
 
     def test_append(self, subject: WebBookmarkTypeList):
         new_child = WebBookmarkTypeLeaf(
-            WebBookmarkUUID=str(uuid4()),
             URLString="http://example.com",
         )
         subject.append(new_child)
@@ -51,7 +43,6 @@ class TestWebBookmarkTypeList:
 
     def test_insert(self, subject: WebBookmarkTypeList):
         new_child = WebBookmarkTypeLeaf(
-            WebBookmarkUUID=str(uuid4()),
             URLString="http://example.com",
         )
         subject.insert(0, new_child)
