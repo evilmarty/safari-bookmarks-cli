@@ -1,3 +1,6 @@
+from .safaribookmarks import SafariBookmarks, SafariBookmarkItem
 from .helpers import load, dump
 
-__all__ = ["load", "dump"]
+open = SafariBookmarks.open
+
+__all__ = ["load", "dump", "SafariBookmarks", "SafariBookmarkItem", "open"]
