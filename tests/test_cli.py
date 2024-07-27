@@ -2,7 +2,6 @@ from io import StringIO
 import pytest
 from pathlib import Path
 from shutil import copyfile
-from tempfile import TemporaryDirectory
 from typing import Any, Generator, List, Optional
 
 from safaribookmarks.cli import CLI
@@ -13,11 +12,10 @@ BOOKMARKS_BINARY_PATH = FIXTURE_PATH.joinpath("Bookmarks.bin")
 
 class TestCLI:
     @pytest.fixture()
-    def bookmarks_path(self) -> Generator[Path, Any, Any]:
-        with TemporaryDirectory() as dir:
-            dest = Path(dir).joinpath("Bookmarks.plist")
-            copyfile(BOOKMARKS_BINARY_PATH, dest)
-            yield dest
+    def bookmarks_path(self, tmp_path: Path) -> Generator[Path, Any, Any]:
+        dest = tmp_path.joinpath("Bookmarks.plist")
+        copyfile(BOOKMARKS_BINARY_PATH, dest)
+        yield dest
 
     @pytest.fixture()
     def cli(self, bookmarks_path) -> CLI:
