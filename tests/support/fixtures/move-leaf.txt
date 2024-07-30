@@ -1,3 +1,0 @@
-BookmarksMenu                                     list  20ABDC16-B491-47F4-B252-2A3065CFB895  
- Safari                                            leaf  AB38D373-1266-495A-8CAC-422A771CF70A  http://apple.com/safari
-

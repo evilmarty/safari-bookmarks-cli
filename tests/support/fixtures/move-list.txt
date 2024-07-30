@@ -1,7 +1,0 @@
-BookmarksMenu                                     list  20ABDC16-B491-47F4-B252-2A3065CFB895  
- BookmarksBar                                      list  3B5180DB-831D-4F1A-AE4A-6482D28D66D5  
-  Safari Bookmarks CLI                              leaf  B441CA58-1880-4151-929E-743090B66587  https://github.com/evilmarty/safari-bookmarks-cli
-  Python                                            leaf  1E830274-3DB6-42F2-BE8E-14E2BA75418C  https://www.python.org
-  Safari                                            leaf  AB38D373-1266-495A-8CAC-422A771CF70A  http://apple.com/safari
-
-

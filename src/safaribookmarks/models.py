@@ -1,4 +1,5 @@
 from pydantic import BaseModel, Field
+import uuid
 from typing import Annotated, Literal, Union
 
 ChildrenType = Annotated[
@@ -13,7 +14,10 @@ class CloudKitSync(BaseModel, populate_by_name=True):
 
 
 class WebBookmarkType(BaseModel, extra="allow"):
-    web_bookmark_uuid: str = Field(alias="WebBookmarkUUID")
+    web_bookmark_uuid: str = Field(
+        alias="WebBookmarkUUID",
+        default_factory=lambda: str(uuid.uuid4()),
+    )
 
     def __hash__(self) -> int:
         return hash(self.web_bookmark_uuid)
