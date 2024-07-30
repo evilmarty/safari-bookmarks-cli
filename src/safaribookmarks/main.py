@@ -25,13 +25,16 @@ def parse_args() -> Namespace:
         default="~/Library/Safari/Bookmarks.plist",
         help="The path to the Safari bookmarks.",
     )
-    parser.add_argument(
-        "--json",
-        action=BooleanOptionalAction,
-        default=False,
-        help="Render output as JSON",
+    subparsers = parser.add_subparsers(
+        title="commands",
+        required=True,
     )
-    group = parser.add_mutually_exclusive_group(required=False)
+    parser_list = subparsers.add_parser(
+        "list",
+        aliases=["ls", "show"],
+        description="List bookmarks and folders.",
+    )
+    group = parser_list.add_mutually_exclusive_group(required=False)
     group.add_argument(
         "--format",
         "-F",
@@ -45,14 +48,11 @@ def parse_args() -> Namespace:
         default=False,
         help="Set the output to a simple format. Not to be used with --format.",
     )
-    subparsers = parser.add_subparsers(
-        title="commands",
-        required=True,
-    )
-    parser_list = subparsers.add_parser(
-        "list",
-        aliases=["ls", "show"],
-        description="List bookmarks and folders.",
+    group.add_argument(
+        "--json",
+        action=BooleanOptionalAction,
+        default=False,
+        help="Render output as JSON",
     )
     parser_list.add_argument(
         "path",

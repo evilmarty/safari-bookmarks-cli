@@ -96,28 +96,32 @@ class CLI:
     def _render(
         self,
         root: SafariBookmarkItem,
-        format: Optional[str] = None,
-        simple_format=False,
+        format: str,
         only_children=False,
         json=False,
     ):
         if json:
             self.output.write(root.json())
+        elif only_children:
+            self._render_children(root, format=format)
         else:
-            if simple_format:
-                format = SIMPLE_FORMAT
-            elif format is None:
-                format = DEFAULT_LIST_FORMAT
-            if only_children:
-                self._render_children(root, format=format)
-            else:
-                self._render_item(root, format=format)
+            self._render_item(root, format=format)
 
-    def list(self, path: List[str] = [], **kwargs):
+    def list(
+        self,
+        path: List[str] = [],
+        format: Optional[str] = None,
+        simple_format=False,
+        json=False,
+    ):
         target = self._get_or_walk(path)
         if target is None:
             raise ValueError("Target not found")
-        self._render(target, only_children=target.is_folder, **kwargs)
+        if simple_format:
+            format = SIMPLE_FORMAT
+        elif format is None:
+            format = DEFAULT_LIST_FORMAT
+        self._render(target, only_children=target.is_folder, format=format, json=json)
 
     def add(
         self,
