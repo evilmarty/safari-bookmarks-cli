@@ -1,5 +1,4 @@
-from contextlib import contextmanager
-from typing import Generator, IO, List, Optional
+from typing import IO, List, Optional
 from .safaribookmarks import SafariBookmarks, SafariBookmarkItem
 
 DEFAULT_LIST_FORMAT = "{prefix: <{depth}}{title: <50}{type: <6}{id: <38}{url}"
