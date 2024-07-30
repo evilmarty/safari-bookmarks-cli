@@ -1,3 +1,4 @@
+import plistlib
 from io import StringIO
 import pytest
 from pathlib import Path
@@ -11,6 +12,17 @@ BOOKMARKS_BINARY_PATH = FIXTURE_PATH.joinpath("Bookmarks.bin")
 
 
 class TestCLI:
+    def read_plist(self, path):
+        with open(path, "rb") as fp:
+            return plistlib.load(fp)
+
+    def assert_plists(self, actual, expected):
+        actual_content = self.read_plist(actual)
+        expected_content = self.read_plist(expected)
+        assert (
+            actual_content == expected_content
+        ), f"{actual_content} != {expected_content}"
+
     @pytest.fixture()
     def bookmarks_path(self, tmp_path: Path) -> Generator[Path, Any, Any]:
         dest = tmp_path.joinpath("Bookmarks.plist")
@@ -118,7 +130,7 @@ class TestCLI:
                 False,
                 None,
                 "http://example.com",
-                FIXTURE_PATH.joinpath("add-fixed-uuid-no-title-leaf.txt"),
+                FIXTURE_PATH.joinpath("add-fixed-uuid-no-title-leaf.plist"),
                 id="leaf-url",
             ),
             pytest.param(
@@ -126,7 +138,7 @@ class TestCLI:
                 False,
                 None,
                 "http://example.com",
-                FIXTURE_PATH.joinpath("add-no-title-leaf.txt"),
+                FIXTURE_PATH.joinpath("add-no-title-leaf.plist"),
                 id="leaf-uuid-url",
             ),
             pytest.param(
@@ -134,7 +146,7 @@ class TestCLI:
                 False,
                 "Example",
                 "http://example.com",
-                FIXTURE_PATH.joinpath("add-fixed-uuid-leaf.txt"),
+                FIXTURE_PATH.joinpath("add-fixed-uuid-leaf.plist"),
                 id="leaf-title-url",
             ),
             pytest.param(
@@ -142,7 +154,7 @@ class TestCLI:
                 False,
                 "Example",
                 "http://example.com",
-                FIXTURE_PATH.joinpath("add-leaf.txt"),
+                FIXTURE_PATH.joinpath("add-leaf.plist"),
                 id="leaf-uuid-title-url",
             ),
             pytest.param(
@@ -150,7 +162,7 @@ class TestCLI:
                 True,
                 "Example",
                 None,
-                FIXTURE_PATH.joinpath("add-list.txt"),
+                FIXTURE_PATH.joinpath("add-list.plist"),
                 id="list-uuid-title",
             ),
             pytest.param(
@@ -158,13 +170,13 @@ class TestCLI:
                 True,
                 "Example",
                 None,
-                FIXTURE_PATH.joinpath("add-fixed-uuid-list.txt"),
+                FIXTURE_PATH.joinpath("add-fixed-uuid-list.plist"),
                 id="list-title",
             ),
         ],
     )
     @pytest.mark.parametrize(
-        "path", [["3B5180DB-831D-4F1A-AE4A-6482D28D66D5"], ["BookmarksMenu"]]
+        "path", [["20ABDC16-B491-47F4-B252-2A3065CFB895"], ["BookmarksMenu"]]
     )
     def test_add__valid(
         self,
@@ -178,13 +190,11 @@ class TestCLI:
         monkeypatch,
     ):
         with (
-            fixture_path.open("r") as file,
             monkeypatch.context() as m,
         ):
             m.setattr("uuid.uuid4", lambda: "8693E85C-83FC-4F42-AFB2-40B9CFACAAA0")
             cli.add(uuid=uuid, list=list, title=title, url=url, path=path)
-            cli.output.seek(0)
-            assert file.read() == cli.output.read()
+            self.assert_plists(cli.path, fixture_path)
 
     @pytest.mark.parametrize(
         ("list", "uuid", "title", "url", "path", "error"),
@@ -254,31 +264,29 @@ class TestCLI:
         [
             pytest.param(
                 ["B441CA58-1880-4151-929E-743090B66587"],
-                FIXTURE_PATH.joinpath("remove-leaf.txt"),
+                FIXTURE_PATH.joinpath("remove-leaf.plist"),
                 id="remove-leaf-by-uuid",
             ),
             pytest.param(
                 ["BookmarksBar", "Safari Bookmarks CLI"],
-                FIXTURE_PATH.joinpath("remove-leaf.txt"),
+                FIXTURE_PATH.joinpath("remove-leaf.plist"),
                 id="remove-leaf-by-title",
             ),
             pytest.param(
                 ["3B5180DB-831D-4F1A-AE4A-6482D28D66D5"],
-                FIXTURE_PATH.joinpath("remove-list.txt"),
+                FIXTURE_PATH.joinpath("remove-list.plist"),
                 id="remove-list-by-uuid",
             ),
             pytest.param(
                 ["BookmarksBar"],
-                FIXTURE_PATH.joinpath("remove-list.txt"),
+                FIXTURE_PATH.joinpath("remove-list.plist"),
                 id="remove-list-by-title",
             ),
         ],
     )
     def test_remove__valid(self, cli: CLI, path: List[str], fixture_path: Path):
-        with fixture_path.open("r") as file:
-            cli.remove(path=path)
-            cli.output.seek(0)
-            assert file.read() == cli.output.read()
+        cli.remove(path=path)
+        self.assert_plists(cli.path, fixture_path)
 
     @pytest.mark.parametrize(
         ("path", "error"),
@@ -305,25 +313,25 @@ class TestCLI:
             pytest.param(
                 ["AB38D373-1266-495A-8CAC-422A771CF70A"],
                 ["20ABDC16-B491-47F4-B252-2A3065CFB895"],
-                FIXTURE_PATH.joinpath("move-leaf.txt"),
+                FIXTURE_PATH.joinpath("move-leaf.plist"),
                 id="leaf-by-uuid",
             ),
             pytest.param(
                 ["BookmarksBar", "Safari"],
                 ["BookmarksMenu"],
-                FIXTURE_PATH.joinpath("move-leaf.txt"),
+                FIXTURE_PATH.joinpath("move-leaf.plist"),
                 id="leaf-by-title",
             ),
             pytest.param(
                 ["3B5180DB-831D-4F1A-AE4A-6482D28D66D5"],
                 ["20ABDC16-B491-47F4-B252-2A3065CFB895"],
-                FIXTURE_PATH.joinpath("move-list.txt"),
+                FIXTURE_PATH.joinpath("move-list.plist"),
                 id="list-by-uuid",
             ),
             pytest.param(
                 ["BookmarksBar"],
                 ["BookmarksMenu"],
-                FIXTURE_PATH.joinpath("move-list.txt"),
+                FIXTURE_PATH.joinpath("move-list.plist"),
                 id="list-by-title",
             ),
         ],
@@ -331,10 +339,8 @@ class TestCLI:
     def test_move__valid(
         self, cli: CLI, path: List[str], to: List[str], fixture_path: Path
     ):
-        with fixture_path.open("r") as file:
-            cli.move(path=path, to=to)
-            cli.output.seek(0)
-            assert file.read() == cli.output.read()
+        cli.move(path=path, to=to)
+        self.assert_plists(cli.path, fixture_path)
 
     @pytest.mark.parametrize(
         ("path", "to", "error"),
@@ -382,28 +388,28 @@ class TestCLI:
                 ["AB38D373-1266-495A-8CAC-422A771CF70A"],
                 "Updated example",
                 None,
-                FIXTURE_PATH.joinpath("edit-title-leaf.txt"),
+                FIXTURE_PATH.joinpath("edit-title-leaf.plist"),
                 id="leaf-title",
             ),
             pytest.param(
                 ["AB38D373-1266-495A-8CAC-422A771CF70A"],
                 None,
                 "http://example.com",
-                FIXTURE_PATH.joinpath("edit-url-leaf.txt"),
+                FIXTURE_PATH.joinpath("edit-url-leaf.plist"),
                 id="leaf-url",
             ),
             pytest.param(
                 ["AB38D373-1266-495A-8CAC-422A771CF70A"],
                 "Updated example",
                 "http://example.com",
-                FIXTURE_PATH.joinpath("edit-title-url-leaf.txt"),
+                FIXTURE_PATH.joinpath("edit-title-url-leaf.plist"),
                 id="leaf-title-and-url",
             ),
             pytest.param(
                 ["3B5180DB-831D-4F1A-AE4A-6482D28D66D5"],
                 "Updated example",
                 None,
-                FIXTURE_PATH.joinpath("edit-title-list.txt"),
+                FIXTURE_PATH.joinpath("edit-title-list.plist"),
                 id="list-title",
             ),
         ],
@@ -416,10 +422,8 @@ class TestCLI:
         url: Optional[str],
         fixture_path: Path,
     ):
-        with fixture_path.open("r") as file:
-            cli.edit(path=path, title=title, url=url)
-            cli.output.seek(0)
-            assert file.read() == cli.output.read()
+        cli.edit(path=path, title=title, url=url)
+        self.assert_plists(cli.path, fixture_path)
 
     @pytest.mark.parametrize(
         ("path", "title", "url", "error"),
@@ -462,20 +466,18 @@ class TestCLI:
         ("path", "fixture_path"),
         [
             pytest.param(
-                ["BookmarksBar"], FIXTURE_PATH.joinpath("empty.txt"), id="list-title"
+                ["BookmarksBar"], FIXTURE_PATH.joinpath("empty.plist"), id="list-title"
             ),
             pytest.param(
                 ["3B5180DB-831D-4F1A-AE4A-6482D28D66D5"],
-                FIXTURE_PATH.joinpath("empty.txt"),
+                FIXTURE_PATH.joinpath("empty.plist"),
                 id="list-uuid",
             ),
         ],
     )
     def test_empty__valid(self, cli: CLI, path: List[str], fixture_path: Path):
-        with fixture_path.open("r") as file:
-            cli.empty(path=path)
-            cli.output.seek(0)
-            assert file.read() == cli.output.read()
+        cli.empty(path=path)
+        self.assert_plists(cli.path, fixture_path)
 
     @pytest.mark.parametrize(
         ("path", "error"),
