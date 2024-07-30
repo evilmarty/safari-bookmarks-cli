@@ -1,7 +1,13 @@
 from typing import IO, List, Optional
 from .safaribookmarks import SafariBookmarks, SafariBookmarkItem
 
-DEFAULT_LIST_FORMAT = "{prefix: <{depth}}{title: <50}{type: <6}{id: <38}{url}"
+DEFAULT_LIST_FORMAT = "{icon} {title: <50} {id: <38}{url}"
+SIMPLE_FORMAT = "{icon} {title: <50} {url}"
+ICON_FIRST_LEAF = "┌"
+ICON_MIDDLE_LEAF = "├"
+ICON_LAST_LEAF = "└"
+ICON_SINGLE_LEAF = "─"
+ICON_LIST_CONTAINER = "│"
 
 
 class CLI:
@@ -31,12 +37,13 @@ class CLI:
     def _save(self) -> None:
         self.bookmarks.save()
 
-    def _render_item(self, item: SafariBookmarkItem, format: str, depth: int = 0):
+    def _render_item(
+        self, item: SafariBookmarkItem, format: str, depth: int = 0, icon: str = ""
+    ):
         self.output.write(
             f"{format}\n".format(
+                icon=icon,
                 depth=depth,
-                prefix="",
-                suffix="",
                 title=item.title.replace("\n", ""),
                 type=item.type,
                 url=item.url,
@@ -45,23 +52,33 @@ class CLI:
         )
         if item.is_folder:
             self._render_children(item, format=format, depth=depth + 1)
-            self.output.write("\n")
 
     def _render_children(self, item: SafariBookmarkItem, format: str, depth: int = 0):
-        for child in iter(item):
-            self._render_item(child, format, depth=depth)
+        last_index = len(item) - 1
+        for index, child in enumerate(iter(item)):
+            icon = ICON_LAST_LEAF if index == last_index else ICON_MIDDLE_LEAF
+            if depth == 0 and index == 0:
+                icon = ICON_FIRST_LEAF
+            if depth == 0 and last_index == 0:
+                icon = ICON_SINGLE_LEAF
+            if depth > 0:
+                icon = f"{ICON_LIST_CONTAINER * depth} {icon}"
+            self._render_item(child, format, depth=depth, icon=icon)
 
     def _render(
         self,
         root: SafariBookmarkItem,
         format: Optional[str] = None,
+        simple_format=False,
         only_children=False,
         json=False,
     ):
         if json:
             self.output.write(root.json())
         else:
-            if format is None:
+            if simple_format:
+                format = SIMPLE_FORMAT
+            elif format is None:
                 format = DEFAULT_LIST_FORMAT
             if only_children:
                 self._render_children(root, format=format)
