@@ -79,9 +79,9 @@ class SafariBookmarkItem:
         if isinstance(self._node, WebBookmarkTypeProxy):
             return "proxy"
         elif self.is_bookmark:
-            return "leaf"
+            return "bookmark"
         elif self.is_folder:
-            return "list"
+            return "folder"
         else:
             return ""
 
