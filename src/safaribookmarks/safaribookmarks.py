@@ -164,7 +164,6 @@ class SafariBookmarkItem:
             kwargs["WebBookmarkUUID"] = id
         if title is not None:
             kwargs["URIDictionary"]["title"] = title
-        print("kwargs", kwargs)
         item = SafariBookmarkItem(node=WebBookmarkTypeLeaf(**kwargs))
         self.append(item)
         return item
