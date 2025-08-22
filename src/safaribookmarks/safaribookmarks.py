@@ -47,7 +47,7 @@ class SafariBookmarkItem:
         return False
 
     def __eq__(self, value: object) -> bool:
-        return type(self) == type(value) and self._node == getattr(value, "_node", None)
+        return type(self) is type(value) and self._node == getattr(value, "_node", None)
 
     def __getitem__(self, key) -> "SafariBookmarkItem":
         if isinstance(key, tuple):
