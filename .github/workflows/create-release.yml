@@ -22,7 +22,7 @@ jobs:
           echo "new_version=${version}" >> "$GITHUB_OUTPUT"
           echo "new_tag=${tag}" >> "$GITHUB_OUTPUT"
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: "3.x"
       - name: Install dependencies
