@@ -1,5 +1,5 @@
 from io import UnsupportedOperation
-import os
+from os import environ, isatty, PathLike
 from typing import IO, List, Optional
 from .safaribookmarks import SafariBookmarks, SafariBookmarkItem
 
@@ -37,7 +37,7 @@ COLORS: dict[str, int] = {
 
 
 class CLI:
-    def __init__(self, path: str, out: IO) -> None:
+    def __init__(self, path: PathLike, out: IO) -> None:
         self.bookmarks = SafariBookmarks.open(path)
         self.output = out
         self.colors = generate_colors(out)
@@ -46,7 +46,7 @@ class CLI:
     def path(self) -> str:
         return str(self.bookmarks.path)
 
-    def run(self, command: str, **kwargs) -> None:
+    def run(self, command: Optional[str], **kwargs) -> None:
         if command is None:
             raise ValueError("No command specified")
         func = getattr(self, command, None)
@@ -203,17 +203,17 @@ def generate_colors(output: IO) -> dict[str, str]:
 
 
 def supports_colors(tty: IO) -> bool:
-    if "ANSI_COLORS_DISABLED" in os.environ:
+    if "ANSI_COLORS_DISABLED" in environ:
         return False
-    if "NO_COLOR" in os.environ:
+    if "NO_COLOR" in environ:
         return False
-    if "FORCE_COLOR" in os.environ:
+    if "FORCE_COLOR" in environ:
         return True
-    if os.environ.get("TERM") == "dumb":
+    if environ.get("TERM") == "dumb":
         return False
     if not hasattr(tty, "fileno"):
         return False
     try:
-        return os.isatty(tty.fileno())
+        return isatty(tty.fileno())
     except UnsupportedOperation:
         return tty.isatty()
