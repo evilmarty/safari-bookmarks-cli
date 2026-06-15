@@ -1,5 +1,5 @@
-import os
-import plistlib
+from os import PathLike
+from plistlib import FMT_BINARY, FMT_XML, load as plist_load, dump as plist_dump
 from typing import IO, Iterable, Optional
 
 from .models import (
@@ -200,7 +200,7 @@ class SafariBookmarks(SafariBookmarkItem):
         return False
 
     @property
-    def path(self) -> Optional[os.PathLike]:
+    def path(self) -> Optional[PathLike]:
         return self._path
 
     @property
@@ -210,12 +210,12 @@ class SafariBookmarks(SafariBookmarkItem):
     def dump(self, fp: IO, *, binary=True) -> None:
         if hasattr(fp, "mode") and "b" not in fp.mode:
             raise IOError("Must be in binary mode")
-        fmt = plistlib.FMT_BINARY if binary else plistlib.FMT_XML
+        fmt = FMT_BINARY if binary else FMT_XML
         data = self._node.model_dump(by_alias=True)
-        plistlib.dump(data, fp, fmt=fmt, sort_keys=True, skipkeys=False)
+        plist_dump(data, fp, fmt=fmt, sort_keys=True, skipkeys=False)
 
     def save(
-        self, path: Optional[os.PathLike] = None, binary: Optional[bool] = None
+        self, path: Optional[PathLike] = None, binary: Optional[bool] = None
     ) -> None:
         if path is None:
             path = self.path
@@ -230,14 +230,14 @@ class SafariBookmarks(SafariBookmarkItem):
     def load(cls, fp: IO, *, binary=True) -> "SafariBookmarks":
         if hasattr(fp, "mode") and "b" not in fp.mode:
             raise IOError("Must be in binary mode")
-        fmt = plistlib.FMT_BINARY if binary else plistlib.FMT_XML
-        data = plistlib.load(fp, fmt=fmt)
+        fmt = FMT_BINARY if binary else FMT_XML
+        data = plist_load(fp, fmt=fmt)
         obj = cls(WebBookmarkTypeList.model_validate(data))
         obj._binary = binary
         return obj
 
     @classmethod
-    def open(cls, path: os.PathLike, binary=True) -> "SafariBookmarks":
+    def open(cls, path: PathLike, binary=True) -> "SafariBookmarks":
         with open(path, "rb") as file:
             obj = cls.load(fp=file, binary=binary)
             obj._path = path
