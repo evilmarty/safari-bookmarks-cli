@@ -37,7 +37,6 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build]
-sources = ["src"]
 include = [
   "src",
 ]
@@ -47,6 +46,9 @@ exclude = [
   "pyproject.toml",
   "tests",
 ]
+
+[tool.hatch.build.targets.wheel]
+sources = ["src"]
 
 [tool.hatch.version]
 source = "code"

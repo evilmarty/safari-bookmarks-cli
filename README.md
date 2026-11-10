@@ -17,6 +17,14 @@ pip3 install safari-bookmarks-cli
 safari-bookmarks --version
 ```
 
+Or install via Homebrew on macOS:
+
+```shell
+brew tap evilmarty/tap
+brew trust --formula evilmarty/tap/safari-bookmarks-cli
+brew install evilmarty/tap/safari-bookmarks-cli
+```
+
 ## Usage
 
 The following assumes the default location for Safari's bookmarks, which is `~/Library/Safari/Bookmarks.plist`. If this is not the case you can specify an alternate location by passing the arguments `-f <elsewhere>`.

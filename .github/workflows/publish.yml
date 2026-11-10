@@ -21,3 +21,79 @@ jobs:
         with:
           user: __token__
           password: ${{ secrets.PYPI_API_TOKEN }}
+  homebrew:
+    needs: deploy
+    if: ${{ !github.event.release.prerelease }}
+    runs-on: macos-latest
+    concurrency:
+      group: publish-homebrew
+      cancel-in-progress: false
+    env:
+      HOMEBREW_NO_AUTO_UPDATE: "1"
+      FORMULA: evilmarty/tap/safari-bookmarks-cli
+      RELEASE_TAG: ${{ github.event.release.tag_name }}
+    steps:
+      - name: Fetch package metadata
+        run: |
+          version="${RELEASE_TAG#v}"
+          curl --fail --silent --show-error --retry 10 --retry-all-errors --retry-delay 15 \
+            "https://pypi.org/pypi/safari-bookmarks-cli/${version}/json" \
+            --output package.json
+      - name: Generate formula
+        run: |
+          brew tap evilmarty/tap
+          tap_path="$(brew --repository evilmarty/tap)"
+          source_metadata=$(jq -e '
+            [.urls[] | select(.packagetype == "sdist" and .yanked == false)]
+            | if length == 1 then
+                .[0] | {url, sha256: .digests.sha256}
+              else
+                error("Expected exactly one non-yanked source distribution")
+              end
+          ' package.json)
+          source_url=$(jq -er '.url' <<< "$source_metadata")
+          source_sha256=$(jq -er '.sha256' <<< "$source_metadata")
+          cat > "$tap_path/Formula/safari-bookmarks-cli.rb" <<RUBY
+          class SafariBookmarksCli < Formula
+            include Language::Python::Virtualenv
+
+            desc "Manage bookmarks in the Safari web browser"
+            homepage "https://github.com/evilmarty/safari-bookmarks-cli"
+            url "$source_url"
+            sha256 "$source_sha256"
+            license "Apache-2.0"
+
+            depends_on "rust" => :build
+            depends_on :macos
+            depends_on "python"
+
+            def install
+              virtualenv_install_with_resources
+            end
+
+            test do
+              assert_match version.to_s, shell_output("#{bin}/safari-bookmarks --version")
+            end
+          end
+          RUBY
+          brew trust --formula "$FORMULA"
+          brew update-python-resources --install-dependencies --ignore-main-package-cooldown "$FORMULA"
+          brew style --fix "$FORMULA"
+      - name: Verify formula
+        run: |
+          brew install --build-from-source "$FORMULA"
+          brew test "$FORMULA"
+      - name: Commit formula to tap
+        env:
+          GH_TOKEN: ${{ secrets.HOMEBREW_TAP_TOKEN }}
+        run: |
+          cd "$(brew --repository evilmarty/tap)"
+          git add Formula/safari-bookmarks-cli.rb
+          if git diff --cached --quiet; then
+            echo "Formula is already up to date"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "Update safari-bookmarks-cli to ${RELEASE_TAG}"
+          git -c credential.helper= -c 'credential.helper=!gh auth git-credential' push origin HEAD
