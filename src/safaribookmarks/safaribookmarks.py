@@ -149,6 +149,11 @@ class SafariBookmarkItem:
             raise RuntimeError("Not a folder")
         if not item.movable:
             raise RuntimeError("Invalid item")
+        node = self
+        while node is not None:
+            if node._node is item._node:
+                raise RuntimeError("Cannot move an item into itself or its own descendant")
+            node = node.parent
         if item in self:
             return
         if parent := item.parent:
